@@ -1,7 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
+using Firebase.Auth;
+using Firebase.Database;
 using UnityEngine;
+using TMPro;
+using System.Collections.Generic;
 
 public class manager : MonoBehaviour
 {
@@ -12,35 +13,53 @@ public class manager : MonoBehaviour
     public GameObject endCanvasGO;
     public int fallenCounter = 0;
 
-    // Start is called before the first frame update
+    FirebaseAuth auth;
+    DatabaseReference dbRef;
+
     void Start()
     {
         endCanvasGO.gameObject.SetActive(false);
+        InitializeFirebase();
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
         lbl.text = "Score: " + scoreManager;
         fallenLbl.text = "Balls: " + (27 - fallenCounter) + "/27";
 
-        if (spheres.Count  == 0)
+        if (spheres.Count == 0)
         {
             endCanvasGO.gameObject.SetActive(true);
+            UpdateScoreInDatabase(); // Call the method to update score when game ends
         }
 
         foreach (GameObject go in spheres)
         {
             if (go.transform.position.y < -30)
             {
-                //go.gameObject.SetActive(false);
-
                 spheres.Remove(go);
                 fallenCounter++;
-                Debug.Log(fallenCounter.ToString());
-
                 Destroy(go);
             }
+        }
+    }
+
+    void InitializeFirebase()
+    {
+        auth = FirebaseAuth.DefaultInstance;
+        dbRef = FirebaseDatabase.DefaultInstance.RootReference;
+    }
+
+    void UpdateScoreInDatabase()
+    {
+        if (auth.CurrentUser != null)
+        {
+            string userId = auth.CurrentUser.UserId;
+            dbRef.Child("users").Child(userId).Child("score").SetValueAsync(scoreManager);
+        }
+        else
+        {
+            Debug.LogError("User not authenticated.");
         }
     }
 }
