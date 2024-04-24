@@ -12,6 +12,7 @@ public class manager : MonoBehaviour
     [SerializeField] List<GameObject> spheres;
     public GameObject endCanvasGO;
     public int fallenCounter = 0;
+    [SerializeField] private AudioSource lostBGM, regBGM;
 
     FirebaseAuth auth;
     DatabaseReference dbRef;
@@ -30,6 +31,13 @@ public class manager : MonoBehaviour
         if (spheres.Count == 0)
         {
             endCanvasGO.gameObject.SetActive(true);
+            regBGM.Stop();
+
+            if (!lostBGM.isPlaying)
+            {
+                lostBGM.Play();
+            }
+
             UpdateScoreInDatabase(); // Call the method to update score when game ends
         }
 
@@ -56,6 +64,7 @@ public class manager : MonoBehaviour
         {
             string userId = auth.CurrentUser.UserId;
             dbRef.Child("users").Child(userId).Child("score").SetValueAsync(scoreManager);
+
         }
         else
         {
