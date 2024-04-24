@@ -16,7 +16,7 @@ public class Board : MonoBehaviour
 
     void Start()
     {
-        FirebaseDatabase.DefaultInstance.GetReference("users").OrderByChild("score").LimitToLast(3).ValueChanged += HandleValueChanged;
+        FirebaseDatabase.DefaultInstance.GetReference("users").OrderByChild("score").LimitToLast(5).ValueChanged += HandleValueChanged;
     }
 
     private void HandleValueChanged(object sender, ValueChangedEventArgs e)
